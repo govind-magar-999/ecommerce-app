@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 import AuthRoles from '../utils/authRoles';
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
+
 const userSchema = mongoose.Schema(
     {
         name: {
@@ -35,5 +39,12 @@ const userSchema = mongoose.Schema(
         timestamps: true
     }
 );
+
+
+userSchema.pre("save", async function(next){
+    if(!this.modified("password")) return next();
+    this.password = await bcrypt.hash(this.password, 10)
+    next()
+})
 
 export default mongoose.model("User", userSchema)
